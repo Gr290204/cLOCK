@@ -1,13 +1,16 @@
-﻿using System.Timers;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using System.Timers;
 
 
 namespace MauiApp3
 {
     public partial class MainPage : ContentPage
     {
-        private Grid secGrid;
-        private Grid minGrid;
-        private Grid hGrid;
+        private readonly Grid secGrid;
+        private readonly Grid minGrid;
+        private readonly Grid hGrid;
 
         public MainPage()
         {
@@ -19,7 +22,7 @@ namespace MauiApp3
             secGrid.AddWithSpan(minGrid, 1, 1, 14, 14);
             Content = secGrid;
            
-            System.Timers.Timer timer = new System.Timers.Timer(1000);
+            System.Timers.Timer timer = new(1000);
             timer.Elapsed += ReDraw;
             timer.Start();
 
@@ -31,10 +34,10 @@ namespace MauiApp3
             var coordsec = NumberToCoordinates(currentTime.Second, 60);
             var coordmin = NumberToCoordinates(currentTime.Minute, 60);
             var coordh = NumberToCoordinates(currentTime.Hour % 12, 12);
-            var coordseclast = NumberToCoordinates(currentTime.Second-1 == -1 ? 59 : currentTime.Second-1, 60);
-            var coordminlast = NumberToCoordinates(currentTime.Minute - 1 == -1 ? 59 : currentTime.Minute - 1, 60);
-            var coordhlast = NumberToCoordinates(currentTime.Hour%12 - 1 == -1 ? 11 : currentTime.Hour%12 - 1, 12);
-            ChangeColor((int)coordsec.Item1, (int)coordsec.Item2, secGrid, Colors.Red);
+            var coordseclast = NumberToCoordinates(currentTime.Second == 0 ? 59 : currentTime.Second-1, 60);
+            var coordminlast = NumberToCoordinates(currentTime.Minute  == 0 ? 59 : currentTime.Minute - 1, 60);
+            var coordhlast = NumberToCoordinates(currentTime.Hour%12 == 0 ? 11 : currentTime.Hour%12 - 1, 12);
+            ChangeColor((int)coordsec.Item1, (int)coordsec.Item2, secGrid, Colors.Purple);
             ChangeColor((int)coordmin.Item1, (int)coordmin.Item2, minGrid, Colors.Red);
             ChangeColor((int)coordh.Item1, (int)coordh.Item2, hGrid, Colors.Red);
             ChangeColor((int)coordseclast.Item1, (int)coordseclast.Item2, secGrid, Colors.Black);
@@ -45,7 +48,7 @@ namespace MauiApp3
 
         static void ChangeColor(int row, int col, Grid grid, Color color)
         {
-            BoxView? boxView = grid.Children.FirstOrDefault(c => grid.GetRow(c) == row && grid.GetColumn(c) == col) as BoxView;
+            BoxView? boxView = (BoxView?)grid.Children.FirstOrDefault(c => grid.GetRow(c) == row && grid.GetColumn(c) == col);
             if (boxView != null)
             {
                 boxView.Color = color;
@@ -53,12 +56,12 @@ namespace MauiApp3
         }
 
 
-        private Grid CreateSquareGrid(int size, int cellSize)
+        private static Grid CreateSquareGrid(int size, int cellSize)
         {
             var grid = new Grid
             {
-                RowDefinitions = new RowDefinitionCollection(),
-                ColumnDefinitions = new ColumnDefinitionCollection()
+                RowDefinitions = [],
+                ColumnDefinitions = []
             };
 
             for (int i = 0; i < size + 1; i++)
